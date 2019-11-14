@@ -1,5 +1,13 @@
 # Chat App
 
+## Testing 
+
+It is possible to send and receive SMS messages using the Emulator.
+
+Receiving messages: Once the Emulator is running click on the 3 dots on the side menu and then "phone". 
+Sending messages: Use 5554 as the phone number and SMS messages will get sent to itself.
+
+
 ## Encryption 
 
 SMS has a max character limitation - https://en.wikipedia.org/wiki/SMS. This may cause issues sending the encrypted messages if they are too long and we may need to think about how to break them up.
