@@ -5,6 +5,7 @@
 It is possible to send and receive SMS messages using the Emulator.
 
 Receiving messages: Once the Emulator is running click on the 3 dots on the side menu and then "phone". 
+
 Sending messages: Use 5554 as the phone number and SMS messages will get sent to itself.
 
 
