@@ -6,6 +6,16 @@
     android:layout_height="fill_parent"
     tools:context=".ConversationActivity">
 
+    <ImageButton
+        android:id="@+id/setKey"
+        android:layout_width="102dp"
+        android:layout_height="71dp"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentRight="true"
+        android:layout_marginTop="0dp"
+        android:layout_marginRight="0dp"
+        app:srcCompat="@android:drawable/ic_menu_camera" />
+
     <LinearLayout
         android:id="@+id/receivedMessage"
         android:layout_width="wrap_content"

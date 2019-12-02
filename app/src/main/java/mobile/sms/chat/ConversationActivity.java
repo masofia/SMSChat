@@ -46,6 +46,15 @@ public class ConversationActivity extends AppCompatActivity {
                 sendMessage(mssg, contact);
             }
         });
+
+        //add QR code reader
+        ImageButton setKeyButton = findViewById(R.id.setKey);
+        setKeyButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+            }
+        });
     }
 
     private void registerReceiver() {
