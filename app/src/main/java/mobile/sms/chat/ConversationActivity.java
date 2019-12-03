@@ -21,9 +21,11 @@ import androidx.core.content.ContextCompat;
 import androidx.lifecycle.ViewModelProviders;
 
 public class ConversationActivity extends AppCompatActivity {
-
     private ConversationViewModel conversationViewModel;
     private BroadcastReceiver broadcastReceiver;
+    private int ZXING_CAMERA_PERMISSION = 1;
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,7 +54,8 @@ public class ConversationActivity extends AppCompatActivity {
         setKeyButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
+                Intent qreader = new Intent(getApplicationContext(), QrScannerActivity.class);
+                startActivity(qreader);
             }
         });
     }
