@@ -4,7 +4,6 @@ import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
-import android.util.Log;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -21,6 +20,7 @@ import me.dm7.barcodescanner.zxing.ZXingScannerView;
 
 public class QrScannerActivity extends AppCompatActivity implements ZXingScannerView.ResultHandler {
     private ZXingScannerView mScannerView;
+    // allows camera to turn on
     private int ZXING_CAMERA_PERMISSION = 1;
 
     @Override
@@ -58,21 +58,21 @@ public class QrScannerActivity extends AppCompatActivity implements ZXingScanner
     @Override
     public void onResume() {
         super.onResume();
-        // Register ourselves as a handler for scan results.
+        // if resumed, register as handler and start camera
         mScannerView.setResultHandler(this);
-        // Start camera on resume
         mScannerView.startCamera();
     }
 
     @Override
     public void onPause() {
+        // if paused, stop camera
         super.onPause();
-        // Stop camera on pause
         mScannerView.stopCamera();
     }
 
     @Override
     public void handleResult(Result rawResult) {
+        // get result and log
         Logger.getAnonymousLogger().info(rawResult.getText());
         // send data back to conversation activity
         Intent intent = new Intent();
