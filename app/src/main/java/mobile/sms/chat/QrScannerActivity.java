@@ -1,6 +1,7 @@
 package mobile.sms.chat;
 
 import android.Manifest;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.util.Log;
@@ -11,6 +12,8 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 import com.google.zxing.Result;
+
+import java.util.logging.Logger;
 
 import me.dm7.barcodescanner.zxing.ZXingScannerView;
 
@@ -70,7 +73,11 @@ public class QrScannerActivity extends AppCompatActivity implements ZXingScanner
 
     @Override
     public void handleResult(Result rawResult) {
-        // Do something with the result here
-        Log.v("QR_CODE", rawResult.getBarcodeFormat().toString()); // Prints scan results
+        Logger.getAnonymousLogger().info(rawResult.getText());
+        // send data back to conversation activity
+        Intent intent = new Intent();
+        intent.putExtra("QR", rawResult.getText());
+        setResult(RESULT_OK, intent);
+        finish();
     }
 }
