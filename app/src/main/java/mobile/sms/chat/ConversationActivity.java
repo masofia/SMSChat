@@ -20,12 +20,16 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.lifecycle.ViewModelProviders;
 
+import org.json.JSONObject;
+
+import mobile.sms.model.Contact;
+import mobile.sms.model.Message;
+
 public class ConversationActivity extends AppCompatActivity {
     private ConversationViewModel conversationViewModel;
     private BroadcastReceiver broadcastReceiver;
     private int ZXING_CAMERA_PERMISSION = 1;
-
-
+    private static final int QR_ACTIVITY_REQUEST_CODE = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,7 +59,7 @@ public class ConversationActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 Intent qreader = new Intent(getApplicationContext(), QrScannerActivity.class);
-                startActivity(qreader);
+                startActivityForResult(qreader, QR_ACTIVITY_REQUEST_CODE);
             }
         });
     }
@@ -129,4 +133,25 @@ public class ConversationActivity extends AppCompatActivity {
         }
     }
 
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        String qr = data.getStringExtra("QR");
+
+        try {
+            JSONObject obj = new JSONObject(qr);
+            String privateKey = obj.getString("key_hex");
+            String iv = obj.getString("iv_hex");
+            setEncryptionValues(privateKey, iv);
+        } catch (Exception e) {
+            Toast.makeText(ConversationActivity.this, "Failed to scan QR code. Please try again.", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    public void setEncryptionValues(String key, String iv) {
+        conversationViewModel.setContactPrivateKey(key);
+        conversationViewModel.setContactIv(iv);
+//        author.setPrivateKey(key);
+//        author.setIv(iv);
+    }
 }
