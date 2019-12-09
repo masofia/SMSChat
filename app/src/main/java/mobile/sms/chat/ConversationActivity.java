@@ -8,6 +8,7 @@ import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.telephony.SmsManager;
+import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -31,6 +32,13 @@ public class ConversationActivity extends AppCompatActivity {
     private int ZXING_CAMERA_PERMISSION = 1;
     private static final int QR_ACTIVITY_REQUEST_CODE = 0;
 
+    private String key;
+    private String iv;
+
+    private void encrypt(Message message) {
+        message.encryptText(this.key, this.iv);
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -51,8 +59,7 @@ public class ConversationActivity extends AppCompatActivity {
                 String msgString = text.getText().toString();
                 Message message = new Message(msgString);
 
-                message.setReceiver(receiver);
-                message.encryptText();
+                encrypt(message);
                 conversationViewModel.addMessage(message.getText());
                 sendMessage(message, receiver);
             }
@@ -154,7 +161,9 @@ public class ConversationActivity extends AppCompatActivity {
     }
 
     public void setEncryptionValues(String key, String iv) {
-        conversationViewModel.setContactPrivateKey(key);
-        conversationViewModel.setContactIv(iv);
+        this.key = key;
+        this.iv = iv;
+        conversationViewModel.setPrivateKey(key);
+        conversationViewModel.setIv(iv);
     }
 }

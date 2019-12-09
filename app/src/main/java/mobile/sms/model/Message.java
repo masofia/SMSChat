@@ -28,7 +28,6 @@ public class Message {
 
     public Message(String text) {
         this.text = text;
-        this.encryptedText = "0x1F4";
     }
 
     public void setReceiver(Contact receiver) {
@@ -41,30 +40,26 @@ public class Message {
 
 //  Found on: https://gist.github.com/itarato/abef95871756970a9dad
 
-    public void encryptText() {
-        if (receiver == null) {
-            return;
-        }
-
-        if (receiver.getPrivateKey() == null) {
+    public void encryptText(String key, String iv) {
+        if (key == null || iv == null) {
             return;
         }
 
         byte[] clean = text.getBytes();
-        byte[] key = hexStringToByteArray(receiver.getPrivateKey());
-        byte[] iv = hexStringToByteArray(receiver.getIv());
+        byte[] keyBytes = hexStringToByteArray(key);
+        byte[] ivBytes = hexStringToByteArray(iv);
 
         try {
-            IvParameterSpec ivParameterSpec = new IvParameterSpec(iv);
-            SecretKeySpec secretKeySpec = new SecretKeySpec(key, "AES");
+            IvParameterSpec ivParameterSpec = new IvParameterSpec(ivBytes);
+            SecretKeySpec secretKeySpec = new SecretKeySpec(keyBytes, "AES");
 
             Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
             cipher.init(Cipher.ENCRYPT_MODE, secretKeySpec, ivParameterSpec);
             byte[] encrypted = cipher.doFinal(clean);
 
-            byte[] encryptedIVAndText = new byte[iv.length + encrypted.length];
-            System.arraycopy(iv, 0, encryptedIVAndText, 0, iv.length);
-            System.arraycopy(encrypted, 0, encryptedIVAndText, iv.length, encrypted.length);
+            byte[] encryptedIVAndText = new byte[ivBytes.length + encrypted.length];
+            System.arraycopy(ivBytes, 0, encryptedIVAndText, 0, ivBytes.length);
+            System.arraycopy(encrypted, 0, encryptedIVAndText, ivBytes.length, encrypted.length);
 
             encryptedText = byteArrayToHexString(encryptedIVAndText);
         } catch (NoSuchAlgorithmException e) {
@@ -82,21 +77,17 @@ public class Message {
         }
     }
 
-    public void decryptText() {
-        if (author == null) {
+    public void decryptText(String key, String iv) {
+        if (key == null || iv == null) {
             return;
         }
 
-        if (author.getPrivateKey() == null) {
-            return;
-        }
-
-        byte[] key = hexStringToByteArray(receiver.getPrivateKey());
-        byte[] iv = hexStringToByteArray(receiver.getIv());
+        byte[] keyBytes = hexStringToByteArray(key);
+        byte[] ivBytes = hexStringToByteArray(iv);
 
         try {
-            IvParameterSpec ivParameterSpec = new IvParameterSpec(iv);
-            SecretKeySpec secretKeySpec = new SecretKeySpec(key, "AES");
+            IvParameterSpec ivParameterSpec = new IvParameterSpec(ivBytes);
+            SecretKeySpec secretKeySpec = new SecretKeySpec(keyBytes, "AES");
 
             Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5PADDING");
             cipher.init(Cipher.DECRYPT_MODE, secretKeySpec, ivParameterSpec);
@@ -112,7 +103,7 @@ public class Message {
     public void setText(String textMessage) { text = textMessage; }
 
     public String getEncryptedText() {
-        if (this.receiver.getPrivateKey() == null) {
+        if (encryptedText == null) {
             return text;
         }
 

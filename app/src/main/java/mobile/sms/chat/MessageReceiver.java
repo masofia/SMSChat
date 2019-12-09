@@ -42,7 +42,7 @@ public class MessageReceiver extends BroadcastReceiver {
                 // Build the message to show
                 String n = messages[i].getOriginatingAddress();
                 strMessage += "SMS from " + n;
-                strMessage += " :" + messages[i].getMessageBody() + "\n";
+                strMessage += ": " + messages[i].getMessageBody() + "\n";
 
 
                 Intent in = new Intent("mobile.sms.chat");
