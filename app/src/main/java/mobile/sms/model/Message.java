@@ -1,7 +1,5 @@
 package mobile.sms.model;
 
-import org.apache.commons.codec.binary.Base64;
-
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
@@ -63,11 +61,7 @@ public class Message {
             cipher.init(Cipher.ENCRYPT_MODE, secretKeySpec, ivParameterSpec);
             byte[] encrypted = cipher.doFinal(clean);
 
-            byte[] encryptedIVAndText = new byte[ivBytes.length + encrypted.length];
-            System.arraycopy(ivBytes, 0, encryptedIVAndText, 0, ivBytes.length);
-            System.arraycopy(encrypted, 0, encryptedIVAndText, ivBytes.length, encrypted.length);
-
-            encryptedText = byteArrayToHexString(encryptedIVAndText);
+            encryptedText = byteArrayToHexString(encrypted);
         } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();
         } catch (NoSuchPaddingException e) {
@@ -101,7 +95,6 @@ public class Message {
             byte[] original = cipher.doFinal(encryptedTextBytes);
 
             text = new String(original);
-            Log.i("Message", "original text: " + text);
         } catch (Exception e) {
             e.printStackTrace();
         }
