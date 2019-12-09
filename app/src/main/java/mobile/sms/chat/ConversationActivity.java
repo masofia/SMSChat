@@ -81,10 +81,11 @@ public class ConversationActivity extends AppCompatActivity {
             @Override
             public void onReceive(Context context, Intent intent) {
                 String mssg = intent.getStringExtra("message");
+                String number = intent.getStringExtra("fullNum");
                 String contact = intent.getStringExtra("contact");
 
                 if (conversationViewModel.getConversation().getContact().getNumber().equals(contact)) {
-                    conversationViewModel.addMessage(mssg);
+                    conversationViewModel.addReceivedMessage(mssg, number);
 
                     LinearLayout receivedText = findViewById(R.id.receivedMessage);
                     TextView convoView = new TextView(context);
@@ -158,6 +159,8 @@ public class ConversationActivity extends AppCompatActivity {
         } catch (Exception e) {
             Toast.makeText(ConversationActivity.this, "Failed to scan QR code. Please try again.", Toast.LENGTH_SHORT).show();
         }
+
+        registerReceiver();
     }
 
     public void setEncryptionValues(String key, String iv) {

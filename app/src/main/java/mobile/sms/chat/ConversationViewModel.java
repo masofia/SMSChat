@@ -6,6 +6,7 @@ import androidx.lifecycle.ViewModel;
 
 import mobile.sms.model.Contact;
 import mobile.sms.model.Conversation;
+import mobile.sms.model.Message;
 
 public class ConversationViewModel extends ViewModel {
     private Contact contact;
@@ -20,8 +21,13 @@ public class ConversationViewModel extends ViewModel {
 
     public boolean addMessage(String text) {
         Log.i("Conversation View Model", "add message: " + text  + "; " + this.toString() + " ***********");
-
         return conversation.addMessage(text);
+    }
+
+    public boolean addReceivedMessage(String text, String number) {
+        Message message = new Message(text);
+        message.decryptText(privateKey, iv);
+        return conversation.addMessage("SMS from " + number + ": " + message.getText() + "\n");
     }
 
     public void setContact(Contact contact) {

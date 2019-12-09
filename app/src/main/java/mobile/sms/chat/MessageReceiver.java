@@ -17,7 +17,6 @@ public class MessageReceiver extends BroadcastReceiver {
     public void onReceive(Context context, Intent intent) {
         // Get the SMS message
         Bundle bundle = intent.getExtras();
-        String strMessage = "";
         String format = bundle.getString("format");
 
         // Retrieve the SMS message received (PDU = protocol data unit)
@@ -39,16 +38,12 @@ public class MessageReceiver extends BroadcastReceiver {
                     messages[i] = SmsMessage.createFromPdu((byte[]) pdus[i]);
                 }
 
-                // Build the message to show
                 String n = messages[i].getOriginatingAddress();
-                strMessage += "SMS from " + n;
-                strMessage += ": " + messages[i].getMessageBody() + "\n";
-
-
                 Intent in = new Intent("mobile.sms.chat");
                 Bundle extras = new Bundle();
                 extras.putString("contact", n.substring(n.length() - 4));   // put only the last 4 for emulator testing
-                extras.putString("message", strMessage);
+                extras.putString("fullNum", n);
+                extras.putString("message", messages[i].getMessageBody());
                 in.putExtras(extras);
                 context.sendBroadcast(in);
             }

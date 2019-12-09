@@ -24,10 +24,12 @@ public class Message {
 
     private static final int IV_SIZE = 16;
 
-    public Message() {}
-
     public Message(String text) {
-        this.text = text;
+        if (text.matches("^[0-9A-F]+$")) {
+            this.encryptedText = text;
+        } else {
+            this.text = text;
+        }
     }
 
     public void setReceiver(Contact receiver) {
@@ -78,9 +80,13 @@ public class Message {
     }
 
     public void decryptText(String key, String iv) {
-        if (key == null || iv == null) {
+        Log.i("Message", "encrypted text " + encryptedText);
+
+        if (key == null || iv == null || encryptedText == null) {
             return;
         }
+
+        Log.i("Message", "decrypting with " + key + " " + iv);
 
         byte[] keyBytes = hexStringToByteArray(key);
         byte[] ivBytes = hexStringToByteArray(iv);
@@ -94,6 +100,7 @@ public class Message {
             byte[] original = cipher.doFinal(Base64.decodeBase64(this.encryptedText));
 
             text = new String(original);
+            Log.i("Message", "original text: " + text);
         } catch (Exception e) {
             e.printStackTrace();
         }
