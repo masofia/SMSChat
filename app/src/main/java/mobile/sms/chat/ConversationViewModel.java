@@ -21,13 +21,16 @@ public class ConversationViewModel extends ViewModel {
 
     public boolean addMessage(String text) {
         Log.i("Conversation View Model", "add message: " + text  + "; " + this.toString() + " ***********");
-        return conversation.addMessage(text);
+        return conversation.addMessage("sent: " + text);
     }
 
-    public boolean addReceivedMessage(String text, String number) {
+    public String addReceivedMessage(String text, String number) {
         Message message = new Message(text);
         message.decryptText(privateKey, iv);
-        return conversation.addMessage("SMS from " + number + ": " + message.getText() + "\n");
+        String decoratedMsg = message.decoratedReceivedMessage(number);
+        conversation.addMessage(decoratedMsg);
+
+        return decoratedMsg;
     }
 
     public void setContact(Contact contact) {

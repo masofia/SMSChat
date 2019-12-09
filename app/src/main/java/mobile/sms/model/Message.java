@@ -40,10 +40,14 @@ public class Message {
         this.author = author;
     }
 
+    public String decoratedReceivedMessage(String number) {
+        return "SMS from " + number + ": " + text + "\n";
+    }
+
 //  Found on: https://gist.github.com/itarato/abef95871756970a9dad
 
     public void encryptText(String key, String iv) {
-        if (key == null || iv == null) {
+        if (key == null || iv == null || text == null) {
             return;
         }
 
@@ -80,13 +84,9 @@ public class Message {
     }
 
     public void decryptText(String key, String iv) {
-        Log.i("Message", "encrypted text " + encryptedText);
-
         if (key == null || iv == null || encryptedText == null) {
             return;
         }
-
-        Log.i("Message", "decrypting with " + key + " " + iv);
 
         byte[] keyBytes = hexStringToByteArray(key);
         byte[] ivBytes = hexStringToByteArray(iv);
@@ -97,7 +97,8 @@ public class Message {
 
             Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5PADDING");
             cipher.init(Cipher.DECRYPT_MODE, secretKeySpec, ivParameterSpec);
-            byte[] original = cipher.doFinal(Base64.decodeBase64(this.encryptedText));
+            byte[] encryptedTextBytes = hexStringToByteArray(this.encryptedText);
+            byte[] original = cipher.doFinal(encryptedTextBytes);
 
             text = new String(original);
             Log.i("Message", "original text: " + text);

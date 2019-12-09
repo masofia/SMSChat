@@ -8,7 +8,6 @@ import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.telephony.SmsManager;
-import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -85,11 +84,11 @@ public class ConversationActivity extends AppCompatActivity {
                 String contact = intent.getStringExtra("contact");
 
                 if (conversationViewModel.getConversation().getContact().getNumber().equals(contact)) {
-                    conversationViewModel.addReceivedMessage(mssg, number);
+                    String viewMessage = conversationViewModel.addReceivedMessage(mssg, number);
 
                     LinearLayout receivedText = findViewById(R.id.receivedMessage);
                     TextView convoView = new TextView(context);
-                    convoView.setText(mssg);
+                    convoView.setText(viewMessage);
                     receivedText.addView(convoView);
                 }
             }
