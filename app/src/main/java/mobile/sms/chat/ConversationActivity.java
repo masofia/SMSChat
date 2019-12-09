@@ -40,16 +40,21 @@ public class ConversationActivity extends AppCompatActivity {
 
         EditText text = findViewById(R.id.textToSend);
 
-        String contact = getIntent().getStringExtra("contact");
-        conversationViewModel.setContact(contact);  // just phone number for now...
+        String contactNum = getIntent().getStringExtra("contact");
+        Contact receiver = new Contact(contactNum);
+        conversationViewModel.setContact(receiver);
 
         ImageButton sendButton = findViewById(R.id.sendMessage);
         sendButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                String mssg = text.getText().toString();
-                conversationViewModel.addMessage(mssg);
-                sendMessage(mssg, contact);
+                String msgString = text.getText().toString();
+                Message message = new Message(msgString);
+
+                message.setReceiver(receiver);
+                message.encryptText();
+                conversationViewModel.addMessage(message.getText());
+                sendMessage(message, receiver);
             }
         });
 
@@ -96,7 +101,7 @@ public class ConversationActivity extends AppCompatActivity {
         }
     }
 
-    public void sendMessage(String mssg, String contact) {
+    public void sendMessage(Message mssg, Contact contact) {
         try {
             SmsManager smgr = SmsManager.getDefault();
 
@@ -123,7 +128,7 @@ public class ConversationActivity extends AppCompatActivity {
                 }
             } else {
                 // Permission has already been granted
-                smgr.sendTextMessage(contact, null, mssg, null, null);
+                smgr.sendTextMessage(contact.getNumber(), null, mssg.getEncryptedText(), null, null);
                 Toast.makeText(ConversationActivity.this, "SMS Sent Successfully", Toast.LENGTH_SHORT).show();
             }
 
@@ -151,7 +156,5 @@ public class ConversationActivity extends AppCompatActivity {
     public void setEncryptionValues(String key, String iv) {
         conversationViewModel.setContactPrivateKey(key);
         conversationViewModel.setContactIv(iv);
-//        author.setPrivateKey(key);
-//        author.setIv(iv);
     }
 }
