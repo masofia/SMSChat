@@ -74,6 +74,7 @@ public class QrScannerActivity extends AppCompatActivity implements ZXingScanner
     public void handleResult(Result rawResult) {
         // get result and log
         Logger.getAnonymousLogger().info(rawResult.getText());
+        Toast.makeText(QrScannerActivity.this, "Key successfully received.", Toast.LENGTH_SHORT).show();
         // send data back to conversation activity
         Intent intent = new Intent();
         intent.putExtra("QR", rawResult.getText());

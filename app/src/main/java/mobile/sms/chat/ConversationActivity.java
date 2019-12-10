@@ -20,12 +20,23 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.lifecycle.ViewModelProviders;
 
+import org.json.JSONObject;
+
+import mobile.sms.model.Contact;
+import mobile.sms.model.Message;
+
 public class ConversationActivity extends AppCompatActivity {
     private ConversationViewModel conversationViewModel;
     private BroadcastReceiver broadcastReceiver;
     private int ZXING_CAMERA_PERMISSION = 1;
+    private static final int QR_ACTIVITY_REQUEST_CODE = 0;
 
+    private String key;
+    private String iv;
 
+    private void encrypt(Message message) {
+        message.encryptText(this.key, this.iv);
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,16 +47,20 @@ public class ConversationActivity extends AppCompatActivity {
 
         EditText text = findViewById(R.id.textToSend);
 
-        String contact = getIntent().getStringExtra("contact");
-        conversationViewModel.setContact(contact);  // just phone number for now...
+        String contactNum = getIntent().getStringExtra("contact");
+        Contact receiver = new Contact(contactNum);
+        conversationViewModel.setContact(receiver);
 
         ImageButton sendButton = findViewById(R.id.sendMessage);
         sendButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                String mssg = text.getText().toString();
-                conversationViewModel.addMessage(mssg);
-                sendMessage(mssg, contact);
+                String msgString = text.getText().toString();
+                Message message = new Message(msgString);
+
+                encrypt(message);
+                conversationViewModel.addMessage(message.getText());
+                sendMessage(message, receiver);
             }
         });
 
@@ -55,7 +70,7 @@ public class ConversationActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 Intent qreader = new Intent(getApplicationContext(), QrScannerActivity.class);
-                startActivity(qreader);
+                startActivityForResult(qreader, QR_ACTIVITY_REQUEST_CODE);
             }
         });
     }
@@ -65,14 +80,15 @@ public class ConversationActivity extends AppCompatActivity {
             @Override
             public void onReceive(Context context, Intent intent) {
                 String mssg = intent.getStringExtra("message");
+                String number = intent.getStringExtra("fullNum");
                 String contact = intent.getStringExtra("contact");
 
                 if (conversationViewModel.getConversation().getContact().getNumber().equals(contact)) {
-                    conversationViewModel.addMessage(mssg);
+                    String viewMessage = conversationViewModel.addReceivedMessage(mssg, number);
 
                     LinearLayout receivedText = findViewById(R.id.receivedMessage);
                     TextView convoView = new TextView(context);
-                    convoView.setText(mssg);
+                    convoView.setText(viewMessage);
                     receivedText.addView(convoView);
                 }
             }
@@ -92,7 +108,7 @@ public class ConversationActivity extends AppCompatActivity {
         }
     }
 
-    public void sendMessage(String mssg, String contact) {
+    public void sendMessage(Message mssg, Contact contact) {
         try {
             SmsManager smgr = SmsManager.getDefault();
 
@@ -119,7 +135,7 @@ public class ConversationActivity extends AppCompatActivity {
                 }
             } else {
                 // Permission has already been granted
-                smgr.sendTextMessage(contact, null, mssg, null, null);
+                smgr.sendTextMessage(contact.getNumber(), null, mssg.getEncryptedText(), null, null);
                 Toast.makeText(ConversationActivity.this, "SMS Sent Successfully", Toast.LENGTH_SHORT).show();
             }
 
@@ -129,4 +145,27 @@ public class ConversationActivity extends AppCompatActivity {
         }
     }
 
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        String qr = data.getStringExtra("QR");
+
+        try {
+            JSONObject obj = new JSONObject(qr);
+            String privateKey = obj.getString("key_hex");
+            String iv = obj.getString("iv_hex");
+            setEncryptionValues(privateKey, iv);
+        } catch (Exception e) {
+            Toast.makeText(ConversationActivity.this, "Failed to scan QR code. Please try again.", Toast.LENGTH_SHORT).show();
+        }
+
+        registerReceiver();
+    }
+
+    public void setEncryptionValues(String key, String iv) {
+        this.key = key;
+        this.iv = iv;
+        conversationViewModel.setPrivateKey(key);
+        conversationViewModel.setIv(iv);
+    }
 }
